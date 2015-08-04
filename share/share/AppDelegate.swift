@@ -70,7 +70,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
         dispatch_once(&Static.token) {
             let originalSelector = Selector("openURL:")
-            let swizzledSelector = Selector("hack_openURL:")
+            let swizzledSelector = Selector("hook_openURL:")
             
             let originalMethod: IMP = UIApplication.instanceMethodForSelector(originalSelector)
             let swizzledMethod = UIApplication.instanceMethodForSelector(swizzledSelector)
@@ -84,8 +84,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 extension UIApplication {
-    func hack_openURL(url: NSURL) -> Bool {
-        println("hacking open url: \(url)")
-        return self.hack_openURL(url)
+    func hook_openURL(url: NSURL) -> Bool {
+        println("hooking open url: \(url)")
+        return self.hook_openURL(url)
     }
 }
