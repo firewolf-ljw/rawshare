@@ -21,6 +21,68 @@
 微信，QQ登录认证也都能工作，唯独微博的登录认证没跑通，因为没有去注册应用，不过登录认证的界面是调起来的了。
 支付相关代码也都翻译完了，但由于没有相应的服务端，所以这两个都没有跑通。有兴趣，有时间的朋友可以帮我试试并修正
 
+
+省去了SDK，大大减小了应用的大小，本demo的代码可以很方便的集成到其他应用里面去，步骤一下几步
+
+1.在AppDelegate的应用加载完毕的回调方法里面，注册需要将信息分享到的应用接口，需要提供相应开放平台的appid等信息
+	    
+	    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+        
+        RSWeChat.register(ShareIdentity.WeChatAppId)//分享到微信
+        RSQQ.register(ShareIdentity.QQAppId)//分享到QQ
+        RSWeibo.register(ShareIdentity.WeiboAppKey)//分享到微博
+        
+        return true
+    }
+
+2.在触发分享信息事件的回调方法中调用相应的分享接口，将信息分享出去
+	    
+	    @IBAction func shareWeChat(sender: UIButton) {
+        	if let share = ShareManager.getShare(domain: RSWeChat.domain) as? RSWeChat {
+            	share.shareToWeChatSession(self.wcMsg(1),
+                	success: { message in println("success")},
+                	fail: { message, error in
+                    	println("fail")
+                    	println(error)
+                	}
+            	)
+        	}
+    	}
+
+3.信息分享完成后，社交APP会回调我们的应用，只需在AppDelegate中的回调方法里做处理就可以了
+
+	    func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject?) -> Bool {
+        
+        if let share = ShareManager.getShare(scheme: url.scheme!) {
+            return share.handleOpenURL(url)
+        }
+        
+        return false
+    }
+
+4.注：修改Info.plist添加URLSchemes，社交APP会回调分享信息的应用时，系统才能匹配到我们的应用
+
+	<key>CFBundleURLTypes</key>
+	<array>
+    	<dict>
+        	<key>CFBundleURLName</key>
+        	<string>OpenShare</string>
+        	<key>CFBundleURLSchemes</key>
+       		<array>
+            	<!--       微信         -->
+            	<string>wxd930ea5d5a258f4f</string>
+            	<!--        QQ         -->
+            	<string>tencent1103194207</string>
+            	<string>tencent1103194207.content</string>
+            	<string>QQ41C1685F</string>
+           		<!--		微博			-->
+            	<string>wb402180334</string>
+        	</array>
+    	</dict>
+	</array>
+
+
+
 ## 参考链接
 http://www.gfzj.us/series/openshare/ 
 

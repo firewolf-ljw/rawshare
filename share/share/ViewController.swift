@@ -25,8 +25,6 @@ class ViewController: UIViewController {
 
     @IBAction func shareWeChat(sender: UIButton) {
         
-        println("start share to WeChat")
-        
         if let share = ShareManager.getShare(domain: RSWeChat.domain) as? RSWeChat {
 
             share.shareToWeChatSession(self.wcMsg(1),
