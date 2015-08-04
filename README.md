@@ -1,5 +1,5 @@
 # rawshare
-
+![pic](https://github.com/firewolf-ljw/rawshare/blob/master/1.png?raw=true)
 
 ## 介绍 
 用swift 1.2实现：不使用相关APP提供的SDK，分享信息（文本，图片，连接）到iOS的主流社交APP
