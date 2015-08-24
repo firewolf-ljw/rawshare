@@ -109,7 +109,7 @@ class RSQQ: RawShare {
             ret.appendString(Utils.base64Encode(msg.title!))
             ret.appendString("&objectlocation=pasteboard&description=")
             ret.appendString(Utils.base64Encode(msg.desc!))
-        } else if msg.checkProperty(nil, notNilPropertys: ["title", "image", "desc", "link", "multimediaType"]) {
+        } else if msg.checkProperty(nil, notNilPropertys: ["title", "image", "desc", "link"]) {
             //新闻／多媒体分享（图片加链接）发送新闻消息 预览图像数据，最大1M字节 URL地址,必填 最长512个字符
             var data: Dictionary<String, AnyObject> = ["previewimagedata": msg.image!]
             

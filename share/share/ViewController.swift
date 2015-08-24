@@ -27,7 +27,7 @@ class ViewController: UIViewController {
         
         if let share = ShareManager.getShare(domain: RSWeChat.domain) as? RSWeChat {
 
-            share.shareToWeChatSession(self.wcMsg(1),
+            share.shareToWeChatSession(self.wcMsg(3),
                 success: { message in println("success")},
                 fail: { message, error in
                     println("fail")
@@ -131,7 +131,7 @@ class ViewController: UIViewController {
         
         if let share = ShareManager.getShare(domain: RSQQ.domain) as? RSQQ {
             
-            share.shareToQQFriends(self.qqMsg(0),
+            share.shareToQQFriends(self.qqMsg(3),
                 success: { message in println("success")},
                 fail: { message, error in
                     println("fail")
@@ -180,7 +180,7 @@ class ViewController: UIViewController {
     @IBAction func shareWeibo(sender: UIButton) {
         if let share = ShareManager.getShare(domain: RSWeibo.domain) as? RSWeibo {
 
-            share.shareToWeibo(self.wbMsg(2),
+            share.shareToWeibo(self.wbMsg(3),
                 success: { message in println("success")},
                 fail: { message, error in
                     println("fail")
