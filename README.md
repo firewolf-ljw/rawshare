@@ -4,8 +4,6 @@
 ## 介绍 
 用swift 1.2实现：不使用相关APP提供的SDK，分享信息（文本，图片，连接）到iOS的主流社交APP
 
-在此之前，本人是做java服务端开发的，现在转型做iOS开发，学的是swift，由于swift是一门新的语言，其本身还在完善中，网上相关教程也越越多，但还不够，很多demo都是用Objective-C写的，所以本人通过将再网上收罗到的demo的源码从Objectiv-C翻译到swift的方式，来熟悉swift和iOS相关基础库组件，并将觉得对大家有帮助的demo分享出来，一起交流学习。
-
 本示例demo也是从github上的一个开源项目翻译过来的，网址：https://github.com/100apps/openshare
 本人还根据自己的编程习惯做了一些修改。可能对swift掌握还不到位，若觉得有不妥的，还望指点。觉得可以的话，不妨施舍一颗星
 
