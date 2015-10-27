@@ -40,11 +40,11 @@ class Utils {
     }
     
     static func base64Encode(input: String) -> String {
-        return input.dataUsingEncoding(NSUTF8StringEncoding)!.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.allZeros)
+        return input.dataUsingEncoding(NSUTF8StringEncoding)!.base64EncodedStringWithOptions(NSDataBase64EncodingOptions())
     }
     
     static func base64Decode(input: String) -> String {
-        let rst = NSString(data: NSData(base64EncodedString: input, options: NSDataBase64DecodingOptions.allZeros)!, encoding: NSUTF8StringEncoding)
+        let rst = NSString(data: NSData(base64EncodedString: input, options: NSDataBase64DecodingOptions())!, encoding: NSUTF8StringEncoding)
         
         return "\(rst)"
     }
@@ -63,19 +63,19 @@ class Utils {
         
         if value != nil && key != nil {
             var data: NSData?
-            var error: NSError?
             
             switch (encoding) {
             case .KeyedArchiver :
                 data = NSKeyedArchiver.archivedDataWithRootObject(value!)
             case .PropertyListSerialization :
-                data = NSPropertyListSerialization.dataWithPropertyList(value!, format: NSPropertyListFormat.BinaryFormat_v1_0, options: 0, error: &error)
-            default : NSLog("encoding not implemented");
+                do {
+                    data = try NSPropertyListSerialization.dataWithPropertyList(value!, format: NSPropertyListFormat.BinaryFormat_v1_0, options: 0)
+                } catch {
+                    NSLog("error when NSPropertyListSerialization: \(error)")
+                }
             }
             
-            if error != nil {
-                NSLog("error when NSPropertyListSerialization: \(error)");
-            } else if data != nil {
+            if data != nil {
                 UIPasteboard.generalPasteboard().setData(data!, forPasteboardType: key!)
             }
         }
@@ -87,20 +87,21 @@ class Utils {
         let data: NSData? = UIPasteboard.generalPasteboard().dataForPasteboardType(key)
         var dic: Dictionary<String, AnyObject>?
         if data != nil {
-            var err: NSError?
             switch (encoding) {
-            case .KeyedArchiver :
+            case .KeyedArchiver:
                 dic = NSKeyedUnarchiver.unarchiveObjectWithData(data!) as? Dictionary<String, AnyObject>
-            case .PropertyListSerialization :
-                dic = NSPropertyListSerialization.propertyListWithData(data!, options: 0, format: nil, error: &err) as? Dictionary<String, AnyObject>
-            default : break
-            }
-            if err != nil {
-                NSLog("error when NSPropertyListSerialization: \(err)");
+            case .PropertyListSerialization:
+                do {
+                    dic = try NSPropertyListSerialization.propertyListWithData(data!, options: NSPropertyListReadOptions(), format: nil) as? Dictionary<String, AnyObject>
+                } catch {
+                    
+                    
+                    NSLog("error when NSPropertyListSerialization: \(error)");
+                }
             }
         }
         
-        return dic;
+        return dic
     }
     
     /**
@@ -110,7 +111,7 @@ class Utils {
         
         var imageSize: CGSize = CGSizeZero
         
-        var orientation: UIInterfaceOrientation = UIApplication.sharedApplication().statusBarOrientation
+        let orientation: UIInterfaceOrientation = UIApplication.sharedApplication().statusBarOrientation
         
         if UIInterfaceOrientationIsPortrait(orientation) {
             imageSize = UIScreen.mainScreen().bounds.size
@@ -120,7 +121,7 @@ class Utils {
         
         UIGraphicsBeginImageContextWithOptions(imageSize, false, 0)
         
-        var context: CGContextRef = UIGraphicsGetCurrentContext()
+        let context: CGContextRef = UIGraphicsGetCurrentContext()!
         
         for window in UIApplication.sharedApplication().windows {
             CGContextSaveGState(context)

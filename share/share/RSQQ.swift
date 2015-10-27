@@ -31,7 +31,7 @@ class RSQQ: RawShare {
     
     private init(appId: String) {
         self.appId = appId
-        var cb = NSString(format: "QQ%02llx", NSString(string: appId).longLongValue)
+        let cb = NSString(format: "QQ%02llx", NSString(string: appId).longLongValue)
         self.callbackName = cb.uppercaseString
         
         super.init(domain: RSQQ.domain)
@@ -64,7 +64,7 @@ class RSQQ: RawShare {
     func qqAuth(scope: String, success:authSuccess, fail:authFail) {
         self.prepareAuth(success, fail:fail)
 
-        var authData: Dictionary<String, AnyObject> =
+        let authData: Dictionary<String, AnyObject> =
             ["app_id":self.appId,
             "app_name":self.CFBundleDisplayName(),
             "client_id":self.appId,
@@ -83,7 +83,7 @@ class RSQQ: RawShare {
     
     func genShareUrl(msg: Message, to:Int) -> String {
         
-        var ret = NSMutableString(string: "mqqapi://share/to_fri?thirdAppDisplayName=")
+        let ret = NSMutableString(string: "mqqapi://share/to_fri?thirdAppDisplayName=")
         ret.appendString(self.CFBundleDisplayName())
         ret.appendString("&version=1&cflag=")
         ret.appendFormat("%d", to)
@@ -111,7 +111,7 @@ class RSQQ: RawShare {
             ret.appendString(Utils.base64Encode(msg.desc!))
         } else if msg.checkProperty(nil, notNilPropertys: ["title", "image", "desc", "link"]) {
             //新闻／多媒体分享（图片加链接）发送新闻消息 预览图像数据，最大1M字节 URL地址,必填 最长512个字符
-            var data: Dictionary<String, AnyObject> = ["previewimagedata": msg.image!]
+            let data: Dictionary<String, AnyObject> = ["previewimagedata": msg.image!]
             
             Utils.setGeneralPasteboard("com.tencent.mqq.api.apiLargeData", value: data, encoding: .KeyedArchiver)
             var msgType = "news"
@@ -131,14 +131,14 @@ class RSQQ: RawShare {
         
         let url = callbackUrl
         
-        if url.scheme!.hasPrefix("QQ") {
+        if url.scheme.hasPrefix("QQ") {
             //分享
             var urlMap: Dictionary<String, String> = Utils.parseUrl(url)
             if let err_desc = urlMap["error_description"] {
                 urlMap["error_description"] = Utils.base64Decode(err_desc)
             }
             
-            let err_code: Int? = urlMap["error"]?.toInt()
+            let err_code: Int? = Int(urlMap["error"]!)
             
             if err_code != nil &&  err_code != 0 {
                 if let callBack = self.shareFailCallback {
@@ -152,7 +152,7 @@ class RSQQ: RawShare {
             }
             
             flag = true
-        } else if url.scheme!.hasPrefix("tencent") {
+        } else if url.scheme.hasPrefix("tencent") {
             //登陆auth
             let ret = Utils.generalPasteboardData("com.tencent.tencent\(appId)", encoding: .KeyedArchiver)
             

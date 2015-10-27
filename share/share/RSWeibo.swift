@@ -96,11 +96,11 @@ class RSWeibo: RawShare {
         
         let url = callbackUrl
         
-        if url.scheme!.hasPrefix("wb") {
+        if url.scheme.hasPrefix("wb") {
             
             let items = UIPasteboard.generalPasteboard().items
             
-            var ret: NSMutableDictionary = NSMutableDictionary(capacity: items.count)
+            let ret: NSMutableDictionary = NSMutableDictionary(capacity: items.count)
             
             for item in items as! [Dictionary<String, AnyObject>] {
                 for (key, value) in item {

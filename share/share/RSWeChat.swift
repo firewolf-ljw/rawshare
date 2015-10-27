@@ -29,11 +29,11 @@ class RSWeChat: RawShare {
     }
     
     func shareToWeChatSession(msg: Message, success: shareSuccess, fail: shareFail) {
-        println("session")
+        print("session")
         self.prepareShare(msg, success: success, fail: fail)
         
         let url = self.genWeChatShareUrl(msg, to:0)
-        println(url)
+        print(url)
         
         self.openURL(url)
     }
@@ -52,7 +52,7 @@ class RSWeChat: RawShare {
     
     func genWeChatShareUrl(msg: Message, to:Int) -> String {
         
-        var dic: NSMutableDictionary = NSMutableDictionary(dictionary: ["result":"1","returnFromApp":"0","scene":"\(to)", "sdkver":"1.5","command":"1010"])
+        let dic: NSMutableDictionary = NSMutableDictionary(dictionary: ["result":"1","returnFromApp":"0","scene":"\(to)", "sdkver":"1.5","command":"1010"])
         
         if msg.messageType == nil {
             if msg.checkProperty(["image", "link"], notNilPropertys: ["title"]) {
@@ -108,12 +108,12 @@ class RSWeChat: RawShare {
             dic["title"] = msg.title
         }
         
-        var obj:Dictionary = [self.appId: dic]
+        let obj:Dictionary = [self.appId: dic]
+        do {
+            let output = try NSPropertyListSerialization.dataWithPropertyList(obj, format: NSPropertyListFormat.BinaryFormat_v1_0, options: NSPropertyListWriteOptions())
         
-        var output = NSPropertyListSerialization.dataWithPropertyList(obj, format: NSPropertyListFormat.BinaryFormat_v1_0, options: NSPropertyListWriteOptions.allZeros, error: nil)!
-        
-        UIPasteboard.generalPasteboard().setData(output, forPasteboardType: "content")
-        
+            UIPasteboard.generalPasteboard().setData(output, forPasteboardType: "content")
+        } catch {}
         return "weixin://app/\(self.appId)/sendreq/?"
         
     }
@@ -152,19 +152,19 @@ class RSWeChat: RawShare {
         
         let url = callbackUrl
             
-        if url.scheme!.hasPrefix("wx") {
+        if url.scheme.hasPrefix("wx") {
             
-            if let range = url.absoluteString?.rangeOfString("://oauth") {
+            if let range = url.absoluteString.rangeOfString("://oauth") {
                 if !range.isEmpty {
                     //login succcess
                     if self.authSuccessCallback != nil {
                         self.authSuccessCallback!(message: Utils.parseUrl(url))
                     }
                 }
-            } else if let range = url.absoluteString?.rangeOfString("://pay/") {
+            } else if let range = url.absoluteString.rangeOfString("://pay/") {
                 if !range.isEmpty {
                     let urlMap: Dictionary<String, String> = Utils.parseUrl(url)
-                    let code: Int? = urlMap["ret"]?.toInt()
+                    let code: Int? = Int(urlMap["ret"]!)
                     
                     if code != nil && code! == 0 {
                         if self.paySuccessCallback != nil {
@@ -181,8 +181,10 @@ class RSWeChat: RawShare {
                 
                 let data = UIPasteboard.generalPasteboard().dataForPasteboardType("content")
                 
-                var retDic = NSPropertyListSerialization.propertyListWithData(data!, options:Int(NSPropertyListMutabilityOptions.MutableContainersAndLeaves.rawValue), format: nil, error: nil) as? NSDictionary
-                
+                var retDic: NSDictionary?
+                do {
+                    retDic = try NSPropertyListSerialization.propertyListWithData(data!, options:NSPropertyListMutabilityOptions.MutableContainersAndLeaves, format: nil) as? NSDictionary
+                } catch {}
                 retDic = retDic?[self.appId] as? NSDictionary
                 
                 NSLog("retDic\n\(retDic)")
@@ -192,7 +194,7 @@ class RSWeChat: RawShare {
                     var code: Int = -1
                     var zeroCode: Bool = false
                     
-                    println(dic.objectForKey("result"))
+                    print(dic.objectForKey("result"))
                     
                     if let rstCode = dic["result"]?.integerValue {
                         code = rstCode

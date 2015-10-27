@@ -28,10 +28,10 @@ class ViewController: UIViewController {
         if let share = ShareManager.getShare(domain: RSWeChat.domain) as? RSWeChat {
 
             share.shareToWeChatSession(self.wcMsg(3),
-                success: { message in println("success")},
+                success: { message in print("success")},
                 fail: { message, error in
-                    println("fail")
-                    println(error)
+                    print("fail")
+                    print(error)
                 }
             )
         }
@@ -42,10 +42,10 @@ class ViewController: UIViewController {
         if let share = ShareManager.getShare(domain: RSWeChat.domain) as? RSWeChat {
             
             share.weChatAuth(
-                {message in println("success")},
+                {message in print("success")},
                 fail: { message, error in
-                    println("fail")
-                    println(error)
+                    print("fail")
+                    print(error)
                 }
             )
         }
@@ -56,24 +56,26 @@ class ViewController: UIViewController {
         let apiUrl: String = "https://pay.example.com/pay.php?payType=weixin"
         
         //网络请求不要阻塞UI，仅限Demo
-        let data: NSData = NSURLConnection.sendSynchronousRequest(NSURLRequest(URL: NSURL(string: apiUrl)!), returningResponse:nil, error:nil)!
-        
-        let link = NSString(data: data, encoding: NSUTF8StringEncoding)
-        
-        if let share = ShareManager.getShare(domain: RSWeChat.domain) as? RSWeChat {
+        do {
+            let data: NSData = try NSURLConnection.sendSynchronousRequest(NSURLRequest(URL: NSURL(string: apiUrl)!), returningResponse:nil)
             
-            share.weChatPay("\(link)",
-                success: {message in println("success")},
-                fail: { message, error in
-                    println("fail")
-                    println(error)
-                }
-            )
-        }
+            let link = NSString(data: data, encoding: NSUTF8StringEncoding)
+            
+            if let share = ShareManager.getShare(domain: RSWeChat.domain) as? RSWeChat {
+                
+                share.weChatPay("\(link)",
+                    success: {message in print("success")},
+                    fail: { message, error in
+                        print("fail")
+                        print(error)
+                    }
+                )
+            }
+        } catch {}
     }
     
     func wcMsg(tag: Int) -> Message {
-        var msg: Message = Message()
+        let msg: Message = Message()
         msg.title = "Hello msg.title"
         
         if tag > 1 {
@@ -127,15 +129,15 @@ class ViewController: UIViewController {
     }
     
     @IBAction func shareQQ(sender: UIButton) {
-        println("start share to QQ")
+        print("start share to QQ")
         
         if let share = ShareManager.getShare(domain: RSQQ.domain) as? RSQQ {
             
             share.shareToQQFriends(self.qqMsg(3),
-                success: { message in println("success")},
+                success: { message in print("success")},
                 fail: { message, error in
-                    println("fail")
-                    println(error)
+                    print("fail")
+                    print(error)
                 }
             )
         }
@@ -145,17 +147,17 @@ class ViewController: UIViewController {
         if let share = ShareManager.getShare(domain: RSQQ.domain) as? RSQQ {
             
             share.qqAuth("get_user_info",
-                success: { message in println("success")},
+                success: { message in print("success")},
                 fail: { message, error in
-                    println("fail")
-                    println(error)
+                    print("fail")
+                    print(error)
                 }
             )
         }
     }
     
     func qqMsg(tag: Int) -> Message {
-        var msg: Message = Message()
+        let msg: Message = Message()
         msg.title = "Hello msg.title"
         
         if tag >= 2 {
@@ -181,10 +183,10 @@ class ViewController: UIViewController {
         if let share = ShareManager.getShare(domain: RSWeibo.domain) as? RSWeibo {
 
             share.shareToWeibo(self.wbMsg(3),
-                success: { message in println("success")},
+                success: { message in print("success")},
                 fail: { message, error in
-                    println("fail")
-                    println(error)
+                    print("fail")
+                    print(error)
                 }
             )
         }
@@ -196,15 +198,15 @@ class ViewController: UIViewController {
             share.weiboAuth("http://openshare.gfzj.us/",
                 success: { message in self.ULog("", msg: message)},
                 fail: { message, error in
-                    println("fail")
-                    println(error)
+                    print("fail")
+                    print(error)
                 }
             )
         }
     }
     
     func wbMsg(tag: Int) -> Message {
-        var msg: Message = Message()
+        let msg: Message = Message()
         msg.title = "Hello msg.title"
         
         if tag >= 2 {
@@ -223,18 +225,20 @@ class ViewController: UIViewController {
     @IBAction func aliPay(sender: UIButton) {
         let apiUrl: String = "https://pay.example.com/pay.php?payType=weixin"
         
-        //网络请求不要阻塞UI，仅限Demo
-        let data: NSData = NSURLConnection.sendSynchronousRequest(NSURLRequest(URL: NSURL(string: apiUrl)!), returningResponse:nil, error:nil)!
-        
-        let link = NSString(data: data, encoding: NSUTF8StringEncoding)
-        
-        if let share = ShareManager.getShare(domain: RSAliPay.domain) as? RSAliPay {
+        do {
+            //网络请求不要阻塞UI，仅限Demo
+            let data: NSData = try NSURLConnection.sendSynchronousRequest(NSURLRequest(URL: NSURL(string: apiUrl)!), returningResponse:nil)
             
-            share.aliPay("\(link)",
-                success: {message in self.ULog("AliPay Success", msg: message)},
-                fail: { message, error in self.ULog("AliPay fail", msg: message)}
-            )
-        }
+            let link = NSString(data: data, encoding: NSUTF8StringEncoding)
+            
+            if let share = ShareManager.getShare(domain: RSAliPay.domain) as? RSAliPay {
+                
+                share.aliPay("\(link)",
+                    success: {message in self.ULog("AliPay Success", msg: message)},
+                    fail: { message, error in self.ULog("AliPay fail", msg: message)}
+                )
+            }
+        } catch {}
     }
     
     func ULog(title: String?, msg: AnyObject?) {

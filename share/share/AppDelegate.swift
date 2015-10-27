@@ -32,9 +32,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject?) -> Bool {
+    func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {
         
-        if let share = ShareManager.getShare(scheme: url.scheme!) {
+        if let share = ShareManager.getShare(scheme: url.scheme) {
             return share.handleOpenURL(url)
         }
         
@@ -85,7 +85,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension UIApplication {
     func hook_openURL(url: NSURL) -> Bool {
-        println("hooking open url: \(url)")
+        print("hooking open url: \(url)")
         return self.hook_openURL(url)
     }
 }

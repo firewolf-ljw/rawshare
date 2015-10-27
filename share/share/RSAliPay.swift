@@ -43,14 +43,19 @@ class RSAliPay: RawShare {
                 
                 linkStr = Utils.urlDecode(linkStr)
                 
-                let linkDic = NSJSONSerialization.JSONObjectWithData(linkStr.dataUsingEncoding(NSUTF8StringEncoding)!, options: NSJSONReadingOptions.AllowFragments, error: nil) as! NSDictionary
+                var linkDic: [String: AnyObject]
+                do {
+                    linkDic = try NSJSONSerialization.JSONObjectWithData(linkStr.dataUsingEncoding(NSUTF8StringEncoding)!, options: NSJSONReadingOptions.AllowFragments) as! [String: AnyObject]
+                } catch {
+                    linkDic = [String: AnyObject]()
+                }
                 
-                UIPasteboard.generalPasteboard().setData(
-                    NSKeyedArchiver.archivedDataWithRootObject(
-                        ["image_data": UIImagePNGRepresentation(screenShot),
-                        "scheme" : linkDic["fromAppUrlScheme"]!
-                        ]),
-                    forPasteboardType: "com.alipay.alipayClient.screenImage")
+                let obj = ["image_data": UIImagePNGRepresentation(screenShot)!,
+                    "scheme" : linkDic["fromAppUrlScheme"]!
+                ]
+                let d = NSKeyedArchiver.archivedDataWithRootObject(obj)
+                UIPasteboard.generalPasteboard().setData(d, forPasteboardType: "com.alipay.alipayClient.screenImage")
+                
                 self.openURL(link)
             }
         }
@@ -61,33 +66,34 @@ class RSAliPay: RawShare {
         var flag = false
         
         let url = callbackUrl
-        if let range = url.absoluteString?.rangeOfString("//safepay/") {
+        if let _ = url.absoluteString.rangeOfString("//safepay/") {
             
-            var err: NSError?
+            var ret: NSDictionary
+            do {
+                ret = try NSJSONSerialization.JSONObjectWithData(Utils.urlDecode(url.query!).dataUsingEncoding(NSUTF8StringEncoding)!, options: NSJSONReadingOptions.AllowFragments)  as! NSDictionary
             
-            let ret = NSJSONSerialization.JSONObjectWithData(Utils.urlDecode(url.query!).dataUsingEncoding(NSUTF8StringEncoding)!, options: NSJSONReadingOptions.AllowFragments, error: &err)  as! NSDictionary
-            
-            var isSuccess = false
-            if let memo = ret["memo"] as? NSDictionary {
-                if let code = memo["ResultStatus"]?.integerValue {
-                    if code == 9000 {
-                        isSuccess = true
+                var isSuccess = false
+                if let memo = ret["memo"] as? NSDictionary {
+                    if let code = memo["ResultStatus"]?.integerValue {
+                        if code == 9000 {
+                            isSuccess = true
+                        }
                     }
                 }
-            }
-            
-            if isSuccess {
-                if let callBack = self.paySuccessCallback {
-                    callBack(message: ret)
+                
+                if isSuccess {
+                    if let callBack = self.paySuccessCallback {
+                        callBack(message: ret)
+                    }
+                } else {
+                    if let callBack = self.payFailCallback {
+                        let error = NSError(domain: "alipay_pay", code: -1, userInfo:nil)
+                        callBack(message: ret, error: error)
+                    }
                 }
-            } else {
-                if let callBack = self.payFailCallback {
-                    let error = NSError(domain: "alipay_pay", code: -1, userInfo:nil)
-                    callBack(message: ret, error: error)
-                }
-            }
 
-            flag = true
+                flag = true
+            } catch {}
         }
         
         reset()
